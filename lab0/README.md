@@ -1,33 +1,31 @@
 # A Kernel Seedling
-TODO: intro
+In ths lab, we create a /proc/count file that shows the current number of running processes (or tasks) running. The process table runs within kernel mode, so to access it we write a kernel module that runs in kernel mode
 
 ## Building
 ```shell
-TODO: cmd for build
+make 
 ```
 
 ## Running
 ```shell
-TODO: cmd for running binary
+sudo insmod proc_count.ko
+cat /proc/count
 ```
-TODO: results?
+The last command should report a single integer representing the number of processes (or tasks) running on the
+machine
 
 ## Cleaning Up
 ```shell
-TODO: cmd for cleaning the built binary
+sudo rmmod proc_count
+make clean
 ```
 
 ## Testing
 ```python
 python -m unittest
 ```
-TODO: results?
-
-Report which kernel release version you tested your module on
-(hint: use `uname`, check for options with `man uname`).
-It should match release numbers as seen on https://www.kernel.org/.
 
 ```shell
 uname -r -s -v
+kernel release version module is tested on is 5.14.8
 ```
-TODO: kernel ver?
