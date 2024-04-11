@@ -5,13 +5,15 @@ In ths lab, we create a /proc/count file that shows the current number of runnin
 ```shell
 make 
 ```
+Compiles the kernel module from source files using a makefile
 
 ## Running
 ```shell
 sudo insmod proc_count.ko
 cat /proc/count
 ```
-The last command should report a single integer representing the number of processes (or tasks) running on the
+Inserts the compiled proc_count kernel module into the running kernel.
+The cat command should report a single integer representing the number of processes (or tasks) running on the
 machine
 
 ## Cleaning Up
@@ -19,6 +21,8 @@ machine
 sudo rmmod proc_count
 make clean
 ```
+The sudo rmmod command removes the proc_count kernel module from the running kernel
+Then, clean up the build environment by removing any compiled objects and the kernel module.
 
 ## Testing
 ```python
