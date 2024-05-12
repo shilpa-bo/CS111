@@ -143,8 +143,6 @@ int main(int argc, char *argv[])
     return EINVAL;
   }
   struct process *data;
-  struct process *p;
-  struct process *current_process;
 
   u32 size;
   init_processes(argv[1], &data, &size);
@@ -156,6 +154,8 @@ int main(int argc, char *argv[])
   u32 total_response_time = 0;
 
 /* Your code here */
+struct process *current_process;
+
 for (u32 i = 0; i < size; i++) {
     data[i].remaining_burst_time = data[i].burst_time;
     data[i].started = false;
@@ -166,13 +166,17 @@ u32 time_slice = 0;
 bool all_done = false;
 u32 num_proc_done = 0;
 
-while (!all_done) {
-
+while (num_proc_done<size) {
     for (u32 i = 0; i < size; i++) {
         if(data[i].arrival_time == current_time && !data[i].started){
-            TAILQ_INSERT_TAIL(&list, &data[i], pointers);
-        }
+            TAILQ_INSERT_TAIL(&list, &data[i], pointers);        
+            }
     }
+
+    // TAILQ_FOREACH(current_process, &list, pointers) {
+    //     printf("Current Time: %d, Process ID: %d, Burst Time: %d\n", current_time, current_process->pid, current_process->burst_time);
+    // }
+    // current_time++;
 
     if(current_process!=NULL){
           if (time_slice == quantum_length && current_process != NULL) {
@@ -206,11 +210,6 @@ while (!all_done) {
         }
     }
 
-    
-
-    if (num_proc_done == size) {
-        all_done = true;
-    }
 }
 /* End of your code here */
 
