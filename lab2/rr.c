@@ -173,11 +173,6 @@ while (num_proc_done<size) {
             }
     }
 
-    // TAILQ_FOREACH(current_process, &list, pointers) {
-    //     printf("Current Time: %d, Process ID: %d, Burst Time: %d\n", current_time, current_process->pid, current_process->burst_time);
-    // }
-    // current_time++;
-
     if(current_process!=NULL){
           if (time_slice == quantum_length && current_process != NULL) {
             TAILQ_INSERT_TAIL(&list, current_process, pointers);
