@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
   u32 total_response_time = 0;
 
 /* Your code here */
-struct process *current_process;
+struct process *current_process = NULL;
 
 for (u32 i = 0; i < size; i++) {
     data[i].remaining_burst_time = data[i].burst_time;
@@ -187,11 +187,14 @@ while (num_proc_done<size) {
     }
     if (!TAILQ_EMPTY(&list) && current_process == NULL) {
         current_process = TAILQ_FIRST(&list);
-        TAILQ_REMOVE(&list, current_process, pointers); 
+        if(current_process!=NULL){
+          TAILQ_REMOVE(&list, current_process, pointers); 
         if (!current_process->started) {
             current_process->start_time = current_time;
             current_process->started = true;
             total_response_time += (current_process->start_time - current_process->arrival_time);
+        }
+
         }
     }
 
