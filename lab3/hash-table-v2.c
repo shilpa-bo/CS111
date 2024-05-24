@@ -1,5 +1,5 @@
 #include "hash-table-base.h"
-#include <stdio.h>
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,10 +38,10 @@ struct hash_table_v2 *hash_table_v2_create()
 		struct hash_table_entry *entry = &hash_table->entries[i];
 		SLIST_INIT(&entry->list_head);
 		//creating a mutex per hash table bucket
-		if (pthread_mutex_init(&entry->hash_lock, NULL) != 0) {
-			free(hash_table); //do i need to do this?
-            perror("pthread_mutex_init");
-            exit(EXIT_FAILURE);
+		int lock_return_val = pthread_mutex_init(&entry->hash_lock, NULL);
+		if (lock_return_val != 0) {
+			free(hash_table); 
+            exit(lock_return_val);
         }
 	}
 	return hash_table;
@@ -86,18 +86,21 @@ void hash_table_v2_add_entry(struct hash_table_v2 *hash_table,
                              uint32_t value)
 {
 
-//the goal is to lock each bucket so only one thread can access a specific bucket at a time
-//race conditions occur when multiple threads are trying to access the SAME bucket at at time 
 	struct hash_table_entry *hash_table_entry = get_hash_table_entry(hash_table, key);
-	//lock here once you get the hash_table_entry?- each hash table entry has its own lock
-	if (pthread_mutex_lock(&hash_table_entry->hash_lock)!=0){
-		exit(EXIT_FAILURE);
+	//lock here once you get the hash_table_entry- each hash table entry has its own lock
+	int lock_return_val = pthread_mutex_lock(&hash_table_entry->hash_lock);
+	if (lock_return_val!=0){
+		exit(lock_return_val);
 	}
 	struct list_head *list_head = &hash_table_entry->list_head;
 	struct list_entry *list_entry = get_list_entry(hash_table, key, list_head);
 	/* Update the value if it already exists */
 	if (list_entry != NULL) {
 		list_entry->value = value;
+		int unlock_return_val = pthread_mutex_unlock(&hash_table_entry->hash_lock)!=0;
+		if (unlock_return_val!=0){
+			exit(unlock_return_val);
+		}
 		return;
 	}
 
@@ -105,8 +108,9 @@ void hash_table_v2_add_entry(struct hash_table_v2 *hash_table,
 	list_entry->key = key;
 	list_entry->value = value;
 	SLIST_INSERT_HEAD(list_head, list_entry, pointers);
-	if (pthread_mutex_unlock(&hash_table_entry->hash_lock)!=0){
-		exit(EXIT_FAILURE);
+	int unlock_return_val = pthread_mutex_unlock(&hash_table_entry->hash_lock)!=0;
+	if (unlock_return_val!=0){
+		exit(unlock_return_val);
 	}
 }
 
@@ -122,9 +126,6 @@ uint32_t hash_table_v2_get_value(struct hash_table_v2 *hash_table,
 
 void hash_table_v2_destroy(struct hash_table_v2 *hash_table)
 {
-	// if (pthread_mutex_destroy(&hash_lock)!=0){ //don't really get how to know which exit calls to use
-	// 	exit(-1);
-	// }
 	for (size_t i = 0; i < HASH_TABLE_CAPACITY; ++i) {
 		struct hash_table_entry *entry = &hash_table->entries[i];
 		struct list_head *list_head = &entry->list_head;
@@ -134,8 +135,9 @@ void hash_table_v2_destroy(struct hash_table_v2 *hash_table)
 			SLIST_REMOVE_HEAD(list_head, pointers);
 			free(list_entry);
 		}
-		if(pthread_mutex_destroy(&entry->hash_lock)!=0){
-			exit(EXIT_FAILURE); //do we exit here or not??
+		int destroy_return_val = pthread_mutex_destroy(&entry->hash_lock)!=0;
+		if(destroy_return_val!=0){
+			exit(destroy_return_val); 
 		}
 
 	}

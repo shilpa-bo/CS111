@@ -1,18 +1,18 @@
-ifeq ($(shell uname -s),Darwin)
-	CFLAGS = -std=gnu17 -pthread -Wall -O0 -pipe -fno-plt -fPIC -I. -I/opt/homebrew/include
-	LDFLAGS = -pthread -L$(shell brew --prefix)/lib -largp
-else
-	CFLAGS = -std=gnu17 -pthread -Wall -O0 -pipe -fno-plt -fPIC -I.
-	LDFLAGS = -lrt -pthread -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now
-endif
-
 # ifeq ($(shell uname -s),Darwin)
-#     CFLAGS = -std=c99 -pthread -Wall -O0 -pipe -fPIC -I. -I/opt/homebrew/include
-#     LDFLAGS = -pthread -L$(shell brew --prefix)/lib -largp
+# 	CFLAGS = -std=gnu17 -pthread -Wall -O0 -pipe -fno-plt -fPIC -I. -I/opt/homebrew/include
+# 	LDFLAGS = -pthread -L$(shell brew --prefix)/lib -largp
 # else
-#     CFLAGS = -std=gnu99 -pthread -Wall -O0 -pipe -fPIC -I.
-#     LDFLAGS = -lrt -pthread -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now
+# 	CFLAGS = -std=gnu17 -pthread -Wall -O0 -pipe -fno-plt -fPIC -I.
+# 	LDFLAGS = -lrt -pthread -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now
 # endif
+
+ifeq ($(shell uname -s),Darwin)
+    CFLAGS = -std=c99 -pthread -Wall -O0 -pipe -fPIC -I. -I/opt/homebrew/include
+    LDFLAGS = -pthread -L$(shell brew --prefix)/lib -largp
+else
+    CFLAGS = -std=gnu99 -pthread -Wall -O0 -pipe -fPIC -I.
+    LDFLAGS = -lrt -pthread -Wl,-O1,--sort-common,--as-needed,-z,relro,-z,now
+endif
 
 
 

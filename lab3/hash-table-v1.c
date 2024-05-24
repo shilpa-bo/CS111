@@ -8,8 +8,6 @@
 #include <pthread.h>
 
 static pthread_mutex_t hash_lock;
-//can create an array of mutexes, then you have to initialize each one 
-//can lock each bucket- because this is where the race conditions occur. each bucket has its own lock
 
 struct list_entry {
 	const char *key;
@@ -32,7 +30,7 @@ struct hash_table_v1 *hash_table_v1_create()
 	struct hash_table_v1 *hash_table = calloc(1, sizeof(struct hash_table_v1));
 	assert(hash_table != NULL);
 	if (pthread_mutex_init(&hash_lock, NULL)!=0){
-		exit(-1);
+		exit(EXIT_FAILURE);
 	}
 	for (size_t i = 0; i < HASH_TABLE_CAPACITY; ++i) {
 		struct hash_table_entry *entry = &hash_table->entries[i];
@@ -87,8 +85,9 @@ void hash_table_v1_add_entry(struct hash_table_v1 *hash_table,
 {
 
 	//LOCK HERE
-	if (pthread_mutex_lock(&hash_lock)!=0){
-		exit(1);
+	int lock_return_val = pthread_mutex_lock(&hash_lock);
+	if (lock_return_val!=0){
+		exit(lock_return_val);
 	}
 	//locating the bucket that we insert the element into 
 	struct hash_table_entry *hash_table_entry = get_hash_table_entry(hash_table, key);
@@ -99,6 +98,10 @@ void hash_table_v1_add_entry(struct hash_table_v1 *hash_table,
 	/* Update the value if it already exists */
 	if (list_entry != NULL) {
 		list_entry->value = value;
+		int unlock_return_val = pthread_mutex_unlock(&hash_lock)!=0;
+		if(unlock_return_val!=0){
+			exit(unlock_return_val);
+		}
 		return;
 	}
 
@@ -106,8 +109,9 @@ void hash_table_v1_add_entry(struct hash_table_v1 *hash_table,
 	list_entry->key = key;
 	list_entry->value = value;
 	SLIST_INSERT_HEAD(list_head, list_entry, pointers);
-	if (pthread_mutex_unlock(&hash_lock)!=0){
-		exit(1);
+	int unlock_return_val = pthread_mutex_unlock(&hash_lock)!=0;
+	if(unlock_return_val!=0){
+		exit(unlock_return_val);
 	}
 
 
@@ -126,7 +130,7 @@ uint32_t hash_table_v1_get_value(struct hash_table_v1 *hash_table,
 void hash_table_v1_destroy(struct hash_table_v1 *hash_table)
 {
 	if (pthread_mutex_destroy(&hash_lock)!=0){ //don't really get how to know which exit calls to use
-		exit(-1);
+		exit(EXIT_FAILURE);
 	}
 
 	for (size_t i = 0; i < HASH_TABLE_CAPACITY; ++i) {
