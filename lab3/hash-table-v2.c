@@ -135,8 +135,7 @@ void hash_table_v2_destroy(struct hash_table_v2 *hash_table)
 			free(list_entry);
 		}
 		if(pthread_mutex_destroy(&entry->hash_lock)!=0){
-			perror("pthread_mutex_destroy");
-			// exit(EXIT_FAILURE); //do we exit here or not??
+			exit(EXIT_FAILURE); //do we exit here or not??
 		}
 
 	}
