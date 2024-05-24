@@ -184,12 +184,11 @@ while (num_proc_done<size) {
         current_process = TAILQ_FIRST(&list);
         if(current_process!=NULL){
           TAILQ_REMOVE(&list, current_process, pointers); 
-        if (!current_process->started) {
-            current_process->start_time = current_time;
-            current_process->started = true;
-            total_response_time += (current_process->start_time - current_process->arrival_time);
-        }
-
+          if (!current_process->started) {
+              current_process->start_time = current_time;
+              current_process->started = true;
+              total_response_time += (current_process->start_time - current_process->arrival_time);
+          }
         }
     }
 
