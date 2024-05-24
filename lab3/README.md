@@ -8,7 +8,7 @@ make
 ```
 
 ## Running
-The executable takes two command link arguments: -t changes the number of threads to use (default 4), and -s changes the number of hash table entries to add per thread (default 25,000).
+The executable takes two command link arguments: -t changes the number of threads to use (default 4), and -s changes the number of hash table entries to add per thread (default 25,000). Note that you only want to use as many threads as the number of cores on your laptop.
 For example, you can run:
 ```shell
 /hash-table-tester -t 8 -s 50000
