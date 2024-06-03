@@ -321,21 +321,6 @@ void write_inode_bitmap(int fd)
 		map_value[i] = 0x00;
 	}
 
-	//inodes:
-	/*
-	1111 1111 block 1 
-	0011 1111  1-16
- 	0000 0000 
-	0000 0000 17-32
-	0000 0000 0000 0000 33-48
-	.
-	.
-	.
-	0000 0000
-	 0000 0000 113-128
-	1111 1111 1111 1111 129-8172
-	*/ 
-
 	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE)
 	{
 		errno_exit("write");
