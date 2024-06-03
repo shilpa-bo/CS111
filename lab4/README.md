@@ -18,7 +18,9 @@ $ ./ext2-create ```
 ```
 
 To dump the filesystem information to help debug:
-$ dumpe2fs cs111 -base.img ```
+```bash
+$ dumpe2fs cs111 -base.img
+```
 This command checks that the filesystem is correct:
 ```bash 
 $ fsck.ext2 cs111 -base.img
