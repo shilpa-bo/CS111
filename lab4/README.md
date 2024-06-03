@@ -15,8 +15,9 @@ $ make
 Run the executable to create cs111-base.img:
 ```bash 
 $ ./ext2-create ```
-To dumps the filesystem information to help debug:
 ```
+
+To dump the filesystem information to help debug:
 $ dumpe2fs cs111 -base.img ```
 This command checks that the filesystem is correct:
 ```bash 
