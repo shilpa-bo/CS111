@@ -14,7 +14,7 @@ $ make
 ## Running
 Run the executable to create cs111-base.img:
 ```bash 
-$ ./ext2-create ```
+$ ./ext2-create
 ```
 
 To dump the filesystem information to help debug:
