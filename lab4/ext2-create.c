@@ -208,13 +208,13 @@ void write_superblock(int fd) {
 	superblock.s_first_data_block = 1; /* First Data Block */
 	superblock.s_log_block_size = 0;					/* 1024 */
 	superblock.s_log_frag_size = 0;						/* 1024 */
-	superblock.s_blocks_per_group = NUM_BLOCKS; //number of blocks per group  IDK if this is right
-	superblock.s_frags_per_group = NUM_BLOCKS;
+	superblock.s_blocks_per_group = 8192; //number of blocks per group  IDK if this is right
+	superblock.s_frags_per_group = 8192;
 	superblock.s_inodes_per_group = NUM_INODES;
 	superblock.s_mtime = 0;				/* Mount time */
 	superblock.s_wtime = current_time;	/* Write time */
 	superblock.s_mnt_count         = 0; /* Number of times mounted so far */
-	superblock.s_max_mnt_count     = 0xFFFF; /* Make this unlimited */
+	superblock.s_max_mnt_count     = -1; /* Make this unlimited */
 	superblock.s_magic = EXT2_SUPER_MAGIC; /* ext2 Signature */
 	superblock.s_state             = 1; /* File system is clean */
 	superblock.s_errors            = 1; /* Ignore the error (continue on) */
@@ -311,16 +311,15 @@ void write_inode_bitmap(int fd)
 		errno_exit("lseek");
 	}
 
-	// TODO It's all yours
 	u8 map_value[BLOCK_SIZE];
-	for(size_t i = 0; i<BLOCK_SIZE; i++){
-		map_value[i] = 0xFF;
-	}
-	map_value[1] = 0x3F;
+	map_value[0] = 0xFF;
+	map_value[1] = 0x1F;
 	for(size_t i = 2; i<16; i++){
 		map_value[i] = 0x00;
 	}
-
+	for(size_t i = 16; i<BLOCK_SIZE; i++){
+		map_value[i] = 0xFF;
+	}
 	if (write(fd, map_value, BLOCK_SIZE) != BLOCK_SIZE)
 	{
 		errno_exit("write");
@@ -385,11 +384,11 @@ void write_inode_table(int fd) {
 	root_inode.i_dtime = 0; 
 	root_inode.i_gid = 0;
 	root_inode.i_links_count = 3;
-	root_inode.i_blocks = 2; /* These are oddly 512 blocks */ //what do i put here?
+	root_inode.i_blocks = 2; /* These are oddly 512 blocks */ 
 	root_inode.i_block[0] = ROOT_DIR_BLOCKNO;
 	write_inode(fd, EXT2_ROOT_INO, &root_inode);
 
-	//make an indode for hello world file
+	//inode for hello world file
 	struct ext2_inode hello_world_inode = {0};
 	hello_world_inode.i_mode = EXT2_S_IFREG
 	                              | EXT2_S_IRUSR
@@ -404,7 +403,7 @@ void write_inode_table(int fd) {
 	hello_world_inode.i_dtime = 0; 
 	hello_world_inode.i_gid = 1000;
 	hello_world_inode.i_links_count = 1;
-	hello_world_inode.i_blocks = 1; /* These are oddly 512 blocks */ //what do i put here?
+	hello_world_inode.i_blocks = 2; /* These are oddly 512 blocks */ //what do i put here?
 	hello_world_inode.i_block[0] = HELLO_WORLD_FILE_BLOCKNO;
 	write_inode(fd, HELLO_WORLD_INO, &hello_world_inode);
 
@@ -425,12 +424,12 @@ void write_inode_table(int fd) {
 	symlink_inode.i_gid = 1000;
 	symlink_inode.i_links_count = 1;
 	symlink_inode.i_blocks = 0;
+	//edge case: just put the data in here?
 	char *s = "hello-world";                                                 
 	size_t len = strlen(s);                                        
 	memcpy(symlink_inode.i_block, s, len);                                   
 
 	write_inode(fd, HELLO_INO, &symlink_inode);
-	//edge case: just put the data in here?
 
 
 }
@@ -445,8 +444,6 @@ void write_root_dir_block(int fd)
 	if (off == -1) {
 		errno_exit("lseek");
 	}
-
-	//do we write all files and directories in this??
 
 	ssize_t bytes_remaining = BLOCK_SIZE;
 	struct ext2_dir_entry current_entry = {0};
