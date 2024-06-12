@@ -205,7 +205,7 @@ void write_superblock(int fd) {
 	superblock.s_r_blocks_count = 0; //number of blocks reserved for the super user
 	superblock.s_free_blocks_count = NUM_FREE_BLOCKS;
 	superblock.s_free_inodes_count = NUM_FREE_INODES;
-	superblock.s_first_data_block = 1; /* First Data Block */
+	superblock.s_first_data_block = SUPERBLOCK_BLOCKNO; /* First Data Block */
 	superblock.s_log_block_size = 0;					/* 1024 */
 	superblock.s_log_frag_size = 0;						/* 1024 */
 	superblock.s_blocks_per_group = 8192; //number of blocks per group  IDK if this is right
@@ -283,7 +283,6 @@ void write_block_bitmap(int fd)
 	{
 		errno_exit("lseek");
 	}
-
 	// TODO It's all yours
 	//Setting blocks 24-1023 to free
 	u8 map_value[BLOCK_SIZE]; //1024 8 bit values--> total 8172. 
